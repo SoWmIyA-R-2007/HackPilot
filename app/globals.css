@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #1a1a1a;
+    --primary-container: #ffcc00;
+    --primary-fixed: #ffcc00;
+    --secondary: #e63b2e;
+    --secondary-container: #ffdad6;
+    --tertiary: #0055ff;
+    --tertiary-container: #d6e3ff;
+    --background: #f5f0e8;
+    --surface: #f5f0e8;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f2ede5;
+    --surface-container: #eee9e0;
+    --surface-container-high: #e8e3da;
+    --surface-container-highest: #e2ddd4;
+    --surface-variant: #e8e3da;
+    --on-surface: #1a1a1a;
+    --on-surface-variant: #4a4a4a;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Typography Classes */
+.font-headline {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-label {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-body {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace, ui-monospace;
+}
+
+/* Neo-Brutalist Shadow Utilities */
+.shadow-brutal-sm {
+  box-shadow: 2px 2px 0px 0px rgba(26, 26, 26, 1);
+}
+
+.shadow-brutal {
+  box-shadow: 4px 4px 0px 0px rgba(26, 26, 26, 1);
+}
+
+.shadow-brutal-lg {
+  box-shadow: 8px 8px 0px 0px rgba(26, 26, 26, 1);
+}
+
+.shadow-brutal-xl {
+  box-shadow: 12px 12px 0px 0px rgba(26, 26, 26, 1);
+}
+
+.shadow-brutal-red {
+  box-shadow: 8px 8px 0px 0px rgba(230, 59, 46, 1);
+}
+
+.shadow-brutal-yellow {
+  box-shadow: 4px 4px 0px 0px rgba(255, 204, 0, 1);
+}
+
+.shadow-brutal-yellow-lg {
+  box-shadow: 8px 8px 0px 0px rgba(255, 204, 0, 1);
+}
+
+/* Striped progress bar pattern */
+.bg-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(26, 26, 26, 0.15),
+    rgba(26, 26, 26, 0.15) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+.bg-stripes-accent {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(26, 26, 26, 0.25),
+    rgba(26, 26, 26, 0.25) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+/* Hide scrollbar for tabs and clean UI */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 59, 46, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(230, 59, 46, 0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite;
+}

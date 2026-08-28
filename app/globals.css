@@ -2,142 +2,230 @@
 
 @layer base {
   :root {
-    --primary: #1a1a1a;
-    --primary-container: #ffcc00;
-    --primary-fixed: #ffcc00;
-    --secondary: #e63b2e;
-    --secondary-container: #ffdad6;
-    --tertiary: #0055ff;
-    --tertiary-container: #d6e3ff;
-    --background: #f5f0e8;
-    --surface: #f5f0e8;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #f2ede5;
-    --surface-container: #eee9e0;
-    --surface-container-high: #e8e3da;
-    --surface-container-highest: #e2ddd4;
-    --surface-variant: #e8e3da;
-    --on-surface: #1a1a1a;
-    --on-surface-variant: #4a4a4a;
+    --background: #090d16;
+    --surface-glass: rgba(15, 23, 42, 0.75);
+    --card-glass: rgba(30, 41, 59, 0.7);
+    --card-glass-hover: rgba(51, 65, 85, 0.8);
+    --primary: #f59e0b;
+    --primary-container: #78350f;
+    --primary-hover: #fbbf24;
+    --secondary-container: #451a03;
+    --on-surface: #f8fafc;
+    --on-surface-variant: #cbd5e1;
+    --outline: #64748b;
+    --outline-variant: rgba(245, 158, 11, 0.25);
+    --error: #ef4444;
+    --error-container: #7f1d1d;
   }
 
   body {
-    background-color: var(--background);
-    color: var(--primary);
+    background-color: #090d16;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.08) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(30, 41, 59, 0.4) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: #f8fafc;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
 }
 
+/* Dark Glassmorphism Utility Classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  background: rgba(51, 65, 85, 0.85);
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 10px 30px -4px rgba(245, 158, 11, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
 /* Typography Classes */
-.font-headline {
-  font-family: 'Space Grotesk', sans-serif;
+.font-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
 }
 
-.font-label {
-  font-family: 'Space Grotesk', sans-serif;
+.font-headline-sm {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
 }
 
-.font-body {
-  font-family: 'Inter', sans-serif;
+.font-display-lg {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 
-.font-mono {
-  font-family: 'JetBrains Mono', monospace, ui-monospace;
+.font-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
 }
 
-/* Neo-Brutalist Shadow Utilities */
-.shadow-brutal-sm {
-  box-shadow: 2px 2px 0px 0px rgba(26, 26, 26, 1);
+.font-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
 }
 
-.shadow-brutal {
-  box-shadow: 4px 4px 0px 0px rgba(26, 26, 26, 1);
+.font-label-md {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
 }
 
-.shadow-brutal-lg {
-  box-shadow: 8px 8px 0px 0px rgba(26, 26, 26, 1);
+.font-code-sm {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
 }
 
-.shadow-brutal-xl {
-  box-shadow: 12px 12px 0px 0px rgba(26, 26, 26, 1);
-}
-
-.shadow-brutal-red {
-  box-shadow: 8px 8px 0px 0px rgba(230, 59, 46, 1);
-}
-
-.shadow-brutal-yellow {
-  box-shadow: 4px 4px 0px 0px rgba(255, 204, 0, 1);
-}
-
-.shadow-brutal-yellow-lg {
-  box-shadow: 8px 8px 0px 0px rgba(255, 204, 0, 1);
-}
-
-/* Striped progress bar pattern */
-.bg-stripes {
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(26, 26, 26, 0.15),
-    rgba(26, 26, 26, 0.15) 10px,
-    transparent 10px,
-    transparent 20px
-  );
-}
-
-.bg-stripes-accent {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(26, 26, 26, 0.25),
-    rgba(26, 26, 26, 0.25) 8px,
-    transparent 8px,
-    transparent 16px
-  );
-}
-
-/* Hide scrollbar for tabs and clean UI */
-.hide-scrollbar::-webkit-scrollbar {
+/* Custom Scrollbar */
+::-webkit-scrollbar {
   display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes slideOutRight {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 59, 46, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(230, 59, 46, 0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 2s infinite;
+
+
+/* Typography Classes */
+.font-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
 }
+
+.font-headline-sm {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.font-display-lg {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.font-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.font-label-md {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+.font-code-sm {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+

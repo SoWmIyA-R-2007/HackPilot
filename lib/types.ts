@@ -167,7 +167,7 @@ export interface MissionAlert {
 
 export interface ToastMessage {
   id: string;
-  type: 'success' | 'alert' | 'info';
+  type: 'success' | 'alert' | 'info' | 'warning';
   title: string;
   message: string;
 }

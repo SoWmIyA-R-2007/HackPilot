@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MissionAlert } from '@/lib/types';
-import { X, Bell, ShieldAlert, Users, Terminal, Send, Check } from 'lucide-react';
+import { X, Bell, AlertTriangle, Users, Trophy, MessageSquare, CheckCheck, ArrowRight } from 'lucide-react';
 
 interface NotificationDrawerProps {
   isOpen: boolean;
@@ -17,197 +17,159 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   onClose,
   alerts,
   onMarkAllRead,
-  onSendEmailDispatch,
 }) => {
   if (!isOpen) return null;
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'team' | 'system'>('all');
-  const [selectedAlert, setSelectedAlert] = useState<MissionAlert | null>(null);
-  const [customSubject, setCustomSubject] = useState('');
-  const [customBody, setCustomBody] = useState('');
-
-  const filteredAlerts = alerts.filter((a) => {
-    if (activeFilter === 'all') return true;
-    return a.type === activeFilter;
-  });
-
-  const handleOpenDispatch = (alert: MissionAlert) => {
-    setSelectedAlert(alert);
-    setCustomSubject(alert.suggestedSubject || `[MISSION ALERT] ${alert.title}`);
-    setCustomBody(
-      alert.suggestedBody ||
-        `Attention Operatives,\n\n${alert.description}\n\nPlease check Mission Control.\n\nBest,\nMission Control`
-    );
-  };
-
-  const handleDispatchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSendEmailDispatch(customSubject, customBody, selectedAlert?.targetOperatives?.length || 3);
-    setSelectedAlert(null);
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-[#f5f0e8] border-l-4 border-[#1a1a1a] w-full max-w-md h-full flex flex-col shadow-brutal-xl animate-slide-in-right">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+      <div className="bg-slate-950/95 backdrop-blur-2xl border-l border-slate-800 w-full max-w-lg h-full flex flex-col shadow-2xl animate-slide-in-right">
         {/* Header */}
-        <div className="bg-[#1a1a1a] text-[#f5f0e8] p-4 flex items-center justify-between border-b-4 border-[#1a1a1a] shrink-0">
+        <div className="bg-slate-900/80 border-b border-slate-800 p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#e63b2e] border border-[#1a1a1a] flex items-center justify-center text-[#f5f0e8]">
-              <Bell className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center font-bold shadow-xs border border-slate-700">
+              <Bell className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="font-headline font-bold text-base uppercase tracking-tight">
-                SYSTEM DISPATCHES
-              </h3>
-              <p className="font-mono text-[10px] text-[#a0a0a0]">
-                REAL-TIME ALERTS & DISPATCH LOG
-              </p>
-            </div>
+            <h1 className="font-bold text-lg text-slate-100 m-0">
+              Notifications
+            </h1>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1 bg-[#eee9e0] hover:bg-[#e63b2e] hover:text-[#f5f0e8] text-[#1a1a1a] border border-[#1a1a1a] cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Filter Controls & Mark All Read */}
-        <div className="p-3 bg-[#eee9e0] border-b-2 border-[#1a1a1a] flex items-center justify-between gap-2 shrink-0">
-          <div className="flex gap-1">
-            {['all', 'urgent', 'team', 'system'].map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f as any)}
-                className={`px-2.5 py-1 font-mono text-[10px] font-bold uppercase border border-[#1a1a1a] cursor-pointer ${
-                  activeFilter === f
-                    ? 'bg-[#1a1a1a] text-[#ffcc00]'
-                    : 'bg-[#f5f0e8] text-[#4a4a4a] hover:bg-[#eee9e0]'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={onMarkAllRead}
-            className="font-mono text-[10px] font-bold text-[#0055ff] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <Check className="w-3 h-3" />
-            <span>Clear All</span>
-          </button>
-        </div>
-
-        {/* Dispatch Form Modal overlay if open */}
-        {selectedAlert ? (
-          <form
-            onSubmit={handleDispatchSubmit}
-            className="p-4 bg-[#eee9e0] border-b-4 border-[#1a1a1a] space-y-3 animate-fade-in shrink-0"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-label font-bold text-xs uppercase text-[#e63b2e] flex items-center gap-1">
-                <Send className="w-3.5 h-3.5" />
-                BROADCAST EMAIL DISPATCH
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedAlert(null)}
-                className="text-xs text-[#6a6a6a] hover:underline font-mono"
-              >
-                Cancel
-              </button>
-            </div>
-
-            <div>
-              <label className="block font-mono text-[10px] font-bold text-[#4a4a4a] mb-1">
-                EMAIL SUBJECT
-              </label>
-              <input
-                type="text"
-                required
-                value={customSubject}
-                onChange={(e) => setCustomSubject(e.target.value)}
-                className="w-full bg-[#f5f0e8] border border-[#1a1a1a] px-2.5 py-1.5 font-mono text-xs text-[#1a1a1a] focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block font-mono text-[10px] font-bold text-[#4a4a4a] mb-1">
-                MESSAGE BODY
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={customBody}
-                onChange={(e) => setCustomBody(e.target.value)}
-                className="w-full bg-[#f5f0e8] border border-[#1a1a1a] px-2.5 py-1.5 font-mono text-xs text-[#1a1a1a] focus:outline-none"
-              />
-            </div>
-
+          <div className="flex items-center gap-2">
             <button
-              type="submit"
-              className="w-full bg-[#e63b2e] hover:bg-[#1a1a1a] text-[#f5f0e8] border-2 border-[#1a1a1a] py-2 font-label font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-brutal-sm cursor-pointer"
+              onClick={onMarkAllRead}
+              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 transition-colors px-3 py-1.5 rounded-xl text-amber-400 text-xs font-semibold cursor-pointer"
             >
-              <Send className="w-4 h-4" />
-              <span>DISPATCH TO TEAM OPERATIVES NOW</span>
+              <CheckCheck className="w-3.5 h-3.5" />
+              <span>Mark all as read</span>
             </button>
-          </form>
-        ) : null}
+            <button
+              onClick={onClose}
+              className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
 
-        {/* Alerts List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {filteredAlerts.map((alert) => {
-            const getIcon = () => {
-              if (alert.type === 'urgent') return <ShieldAlert className="w-4 h-4 text-[#e63b2e]" />;
-              if (alert.type === 'team') return <Users className="w-4 h-4 text-[#0055ff]" />;
-              return <Terminal className="w-4 h-4 text-[#ffcc00]" />;
-            };
-
-            return (
-              <div
-                key={alert.id}
-                className={`border-2 border-[#1a1a1a] p-3 shadow-brutal-sm relative transition-all ${
-                  alert.unread ? 'bg-[#eee9e0]' : 'bg-[#f5f0e8] opacity-80'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <div className="flex items-center gap-1.5">
-                    {getIcon()}
-                    <span className="font-headline font-bold text-xs text-[#1a1a1a] uppercase">
-                      {alert.title}
-                    </span>
-                  </div>
-                  <span className="font-mono text-[9px] text-[#6a6a6a] shrink-0 font-bold">
-                    {alert.time}
-                  </span>
+        {/* Scrollable Notifications List Grouped */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-6 bg-[#090d16]">
+          {/* Today Group */}
+          <div>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">
+              Today
+            </h2>
+            <div className="flex flex-col bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-xs border border-slate-800 overflow-hidden">
+              {/* Notification 1 - Unread */}
+              <div className="flex items-start gap-3.5 p-4 hover:bg-slate-800/60 transition-colors relative border-b border-slate-800 group cursor-pointer">
+                <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-amber-500" />
+                <div className="w-9 h-9 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center shrink-0 font-bold shadow-xs border border-slate-700">
+                  <Bell className="w-4 h-4" />
                 </div>
-
-                <p className="font-body text-xs text-[#4a4a4a] leading-normal">
-                  {alert.description}
-                </p>
-
-                {alert.suggestedSubject && (
-                  <button
-                    onClick={() => handleOpenDispatch(alert)}
-                    className="mt-2 text-[10px] font-mono font-bold text-[#0055ff] hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <Send className="w-3 h-3" />
-                    <span>PREPARE EMAIL DISPATCH</span>
-                  </button>
-                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <span className="font-bold text-xs text-slate-100 truncate">Global Climate Hackathon</span>
+                    <span className="font-mono text-[11px] text-slate-400 shrink-0 font-medium">2m ago</span>
+                  </div>
+                  <p className="text-xs text-slate-300 m-0 mb-2 leading-relaxed">
+                    Registration is now open! Early bird submissions close in 48 hours.
+                  </p>
+                  <a className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:underline" href="#">
+                    View details <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
-            );
-          })}
 
-          {filteredAlerts.length === 0 && (
-            <div className="text-center py-12 text-[#6a6a6a] font-mono text-xs">
-              No active dispatches found in log.
+              {/* Notification 2 - Urgent Alert */}
+              <div className="flex items-start gap-3.5 p-4 hover:bg-slate-800/60 transition-colors relative border-b border-slate-800 group cursor-pointer">
+                <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-red-500" />
+                <div className="w-9 h-9 rounded-full bg-red-950/60 text-red-400 flex items-center justify-center shrink-0 font-bold shadow-xs border border-red-800/60">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <span className="font-bold text-xs text-slate-100 truncate">DevRel Hackathon</span>
+                    <span className="font-mono text-[11px] text-slate-400 shrink-0 font-medium">1h ago</span>
+                  </div>
+                  <p className="text-xs text-slate-300 m-0 mb-2 leading-relaxed">
+                    Your submission is missing a demo video link. Please update before deadline.
+                  </p>
+                  <a className="inline-flex items-center gap-1 text-xs font-bold text-red-400 hover:underline" href="#">
+                    Fix issue <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Notification 3 - Team Request */}
+              <div className="flex items-start gap-3.5 p-4 hover:bg-slate-800/60 transition-colors relative group cursor-pointer opacity-90">
+                <div className="w-9 h-9 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0 border border-slate-700">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <span className="font-bold text-xs text-slate-100 truncate">Web3 Builders</span>
+                    <span className="font-mono text-[11px] text-slate-400 shrink-0 font-medium">4h ago</span>
+                  </div>
+                  <p className="text-xs text-slate-300 m-0 mb-2 leading-relaxed">
+                    Alex Chen requested to join team "BlockMasters".
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <button className="bg-amber-500 text-slate-950 text-xs font-bold px-3.5 py-1 rounded-full hover:bg-amber-400 transition-colors shadow-xs cursor-pointer">
+                      Accept
+                    </button>
+                    <button className="bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-1 rounded-full hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer">
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+
+          {/* Yesterday Group */}
+          <div>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-1">
+              Yesterday
+            </h2>
+            <div className="flex flex-col bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-xs border border-slate-800 overflow-hidden">
+              <div className="flex items-start gap-3.5 p-4 hover:bg-slate-800/60 transition-colors relative border-b border-slate-800 group cursor-pointer opacity-80 hover:opacity-100">
+                <div className="w-9 h-9 rounded-full bg-slate-800 text-amber-400 flex items-center justify-center shrink-0 border border-slate-700">
+                  <Trophy className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <span className="font-bold text-xs text-slate-100 truncate">AI Innovators Challenge</span>
+                    <span className="font-mono text-[11px] text-slate-400 shrink-0 font-medium">Yesterday, 14:30</span>
+                  </div>
+                  <p className="text-xs text-slate-300 m-0 mb-2 leading-relaxed">
+                    Congratulations! Your team won 2nd place in Best Overall category.
+                  </p>
+                  <a className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:underline" href="#">
+                    View results <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3.5 p-4 hover:bg-slate-800/60 transition-colors relative group cursor-pointer opacity-80 hover:opacity-100">
+                <div className="w-9 h-9 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center shrink-0 border border-slate-700">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <span className="font-bold text-xs text-slate-100 truncate">FinTech Disruptors</span>
+                    <span className="font-mono text-[11px] text-slate-400 shrink-0 font-medium">Yesterday, 09:15</span>
+                  </div>
+                  <p className="text-xs text-slate-300 m-0 leading-relaxed">
+                    New announcement: The payment gateway API endpoint has been updated.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+
+

@@ -1,19 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
-import { HackathonView, TaskView, OperativeView } from '@/lib/types';
+import React from 'react';
+import { HackathonView } from '@/lib/types';
 import { TaskChecklist } from './TaskChecklist';
 import {
   X,
-  Layers,
-  Users,
-  CheckCircle2,
-  Mail,
-  Send,
   ExternalLink,
   Trash2,
+  UserPlus,
+  FileText,
+  Code,
+  Layers,
 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
 
 interface HackathonModalProps {
   hackathon: HackathonView | null;
@@ -36,18 +34,15 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
 
   if (!hackathon) return null;
 
-  // Handle task toggling
+  // Task Handlers
   const handleToggleTask = (taskId: string) => {
     const updatedTasks = hackathon.tasks.map((t) =>
       t.id === taskId ? { ...t, completed: !t.completed } : t
     );
-    
-    // Recalculate completion
-    const totalW = updatedTasks.reduce((acc, t) => acc + t.weight, 0);
-    const completedW = updatedTasks
-      .filter((t) => t.completed)
-      .reduce((acc, t) => acc + t.weight, 0);
-    const newCompletion = totalW ? Math.round((completedW / totalW) * 100) : 0;
+    const completedCount = updatedTasks.filter((t) => t.completed).length;
+    const newCompletion = updatedTasks.length
+      ? Math.round((completedCount / updatedTasks.length) * 100)
+      : 0;
 
     onUpdateHackathon({
       ...hackathon,
@@ -56,14 +51,8 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
     });
   };
 
-  // Add task
-  const handleAddTask = (
-    title: string,
-    weight: number,
-    assigneeName: string,
-    assigneeAvatar: string
-  ) => {
-    const newTask: TaskView = {
+  const handleAddTask = (title: string, weight: number, assigneeName: string, assigneeAvatar: string) => {
+    const newTask = {
       id: `t-${Date.now()}`,
       title,
       completed: false,
@@ -72,12 +61,8 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
       assigneeAvatar,
     };
     const updatedTasks = [...hackathon.tasks, newTask];
-
-    const totalW = updatedTasks.reduce((acc, t) => acc + t.weight, 0);
-    const completedW = updatedTasks
-      .filter((t) => t.completed)
-      .reduce((acc, t) => acc + t.weight, 0);
-    const newCompletion = totalW ? Math.round((completedW / totalW) * 100) : 0;
+    const completedCount = updatedTasks.filter((t) => t.completed).length;
+    const newCompletion = Math.round((completedCount / updatedTasks.length) * 100);
 
     onUpdateHackathon({
       ...hackathon,
@@ -86,14 +71,12 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
     });
   };
 
-  // Delete task
   const handleDeleteTask = (taskId: string) => {
     const updatedTasks = hackathon.tasks.filter((t) => t.id !== taskId);
-    const totalW = updatedTasks.reduce((acc, t) => acc + t.weight, 0);
-    const completedW = updatedTasks
-      .filter((t) => t.completed)
-      .reduce((acc, t) => acc + t.weight, 0);
-    const newCompletion = totalW ? Math.round((completedW / totalW) * 100) : 0;
+    const completedCount = updatedTasks.filter((t) => t.completed).length;
+    const newCompletion = updatedTasks.length
+      ? Math.round((completedCount / updatedTasks.length) * 100)
+      : 0;
 
     onUpdateHackathon({
       ...hackathon,
@@ -102,162 +85,80 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
     });
   };
 
-  // Invite operative
-  const handleInviteOperative = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inviteEmail.trim()) return;
-    const namePart = inviteEmail.split('@')[0];
-    const newOp: OperativeView = {
-      id: `op-${Date.now()}`,
-      name: namePart.charAt(0).toUpperCase() + namePart.slice(1),
-      email: inviteEmail.trim(),
-      role: inviteRole,
-      avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80`,
-    };
-
-    onUpdateHackathon({
-      ...hackathon,
-      operatives: [...hackathon.operatives, newOp],
-    });
-    setInviteEmail('');
-  };
+  const completedTasksCount = hackathon.tasks.filter((t) => t.completed).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="bg-[#f5f0e8] border-4 border-[#1a1a1a] shadow-brutal-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden my-auto">
-        {/* Modal Top Header */}
-        <div className="bg-[#1a1a1a] text-[#f5f0e8] p-4 flex items-center justify-between border-b-4 border-[#1a1a1a] shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="bg-slate-950/95 backdrop-blur-2xl border border-slate-800 rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden my-auto">
+        {/* Header Bar */}
+        <div className="bg-slate-900/80 px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <span className="bg-[#ffcc00] text-[#1a1a1a] font-mono text-xs font-bold px-2 py-1 border border-[#1a1a1a]">
+            <span className="bg-amber-500/20 text-amber-400 font-mono text-xs font-bold px-3 py-1 rounded-full border border-amber-500/40 shadow-xs">
               {hackathon.code}
             </span>
-            <div>
-              <h2 className="font-headline font-bold text-lg sm:text-xl uppercase tracking-tight truncate max-w-md">
-                {hackathon.title}
-              </h2>
-              <p className="font-mono text-xs text-[#a0a0a0]">
-                TEAM: {hackathon.teamName} // DOMAIN: {hackathon.domain}
-              </p>
-            </div>
+            <h2 className="font-bold text-lg text-slate-100 truncate">
+              {hackathon.title}
+            </h2>
           </div>
-
           <button
             onClick={onClose}
-            className="p-1.5 bg-[#eee9e0] hover:bg-[#e63b2e] hover:text-[#f5f0e8] text-[#1a1a1a] border-2 border-[#1a1a1a] transition-colors cursor-pointer shrink-0"
+            className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab Header Navigation */}
-        <div className="flex border-b-4 border-[#1a1a1a] bg-[#eee9e0] overflow-x-auto hide-scrollbar shrink-0">
-          {[
-            { id: 'specs', label: 'MISSION SPECS', icon: Layers },
-            { id: 'tasks', label: `TASKS (${hackathon.tasks.length})`, icon: CheckCircle2 },
-            { id: 'team', label: `OPERATIVES (${hackathon.operatives.length})`, icon: Users },
-            { id: 'reminders', label: 'EMAIL DISPATCHES', icon: Mail },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
+        {/* Top Title & Progress Header Strip */}
+        <div className="p-6 bg-slate-900/50 backdrop-blur-md border-b border-slate-800 space-y-4 shrink-0">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <h1 className="text-xl font-extrabold text-slate-100 m-0">
+                  {hackathon.title}
+                </h1>
+                <span className="bg-amber-500/20 text-amber-400 px-3 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 border border-amber-500/30">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  {hackathon.status.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+                {hackathon.problemStatement}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-5 py-3 font-label font-bold text-xs uppercase tracking-wider border-r-2 border-[#1a1a1a] transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? 'bg-[#ffcc00] text-[#1a1a1a] shadow-[inset_0_-4px_0_0_#1a1a1a]'
-                    : 'bg-[#eee9e0] text-[#4a4a4a] hover:bg-[#f5f0e8]'
-                }`}
+                onClick={() => onTriggerEmailDispatch(hackathon.title, hackathon.operatives.length)}
+                className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-amber-500/20 transition-colors cursor-pointer"
               >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
+                Send Email Broadcast
               </button>
-            );
-          })}
+            </div>
+          </div>
+
+          {/* Smooth Progress Bar */}
+          <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700">
+            <div
+              className="bg-amber-500 h-full rounded-full transition-all duration-700 ease-in-out shadow-lg shadow-amber-500/30"
+              style={{ width: `${hackathon.completion}%` }}
+            />
+          </div>
         </div>
 
-        {/* Modal Scrollable Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-[#f5f0e8]">
-          {/* TAB 1: MISSION SPECS */}
-          {activeTab === 'specs' && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Problem Statement Card */}
-              <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-5 shadow-brutal-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-label font-bold text-xs uppercase tracking-wider text-[#4a4a4a]">
-                    PROBLEM STATEMENT DIRECTIVE
-                  </span>
-                  {hackathon.psId && (
-                    <span className="bg-[#1a1a1a] text-[#ffcc00] font-mono text-xs font-bold px-2 py-0.5 border border-[#1a1a1a]">
-                      {hackathon.psId}
-                    </span>
-                  )}
-                </div>
-                <p className="font-body text-sm text-[#1a1a1a] leading-relaxed">
-                  {hackathon.problemStatement}
-                </p>
+        {/* Modal Main Body Grid */}
+        <div className="p-6 overflow-y-auto flex-1 bg-[#090d16]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Column: Sprint Tasks Checklist */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 className="font-bold text-base text-slate-100 m-0">
+                  Sprint Tasks
+                </h3>
+                <span className="text-xs text-slate-400 font-bold font-mono">
+                  {completedTasksCount} / {hackathon.tasks.length} Completed
+                </span>
               </div>
 
-              {/* Grid Metadata Specs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">MODE / FORMAT</span>
-                  <span className="font-bold text-sm uppercase text-[#1a1a1a]">
-                    {hackathon.mode || 'ONLINE'}
-                  </span>
-                </div>
-
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">PRIORITY LEVEL</span>
-                  <span className="font-bold text-sm uppercase text-[#e63b2e]">
-                    {hackathon.priority} PRIORITY
-                  </span>
-                </div>
-
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">STATUS</span>
-                  <span className="font-bold text-sm uppercase text-[#1a1a1a]">
-                    {hackathon.status.replace('_', ' ')}
-                  </span>
-                </div>
-
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">SUBMISSION DEADLINE</span>
-                  <span className="font-bold text-xs text-[#1a1a1a]">
-                    {formatDate(hackathon.submissionDeadline)}
-                  </span>
-                </div>
-
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">KICKOFF DATE</span>
-                  <span className="font-bold text-xs text-[#1a1a1a]">
-                    {formatDate(hackathon.kickoffDate)}
-                  </span>
-                </div>
-
-                <div className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm">
-                  <span className="text-[#6a6a6a] font-bold block mb-1">WEBSITE LINK</span>
-                  {hackathon.websiteLink ? (
-                    <a
-                      href={hackathon.websiteLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#0055ff] hover:underline font-bold flex items-center gap-1 truncate"
-                    >
-                      <span>Visit Portal</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  ) : (
-                    <span className="text-[#6a6a6a]">N/A</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: TASK CHECKLIST */}
-          {activeTab === 'tasks' && (
-            <div className="animate-fade-in">
               <TaskChecklist
                 tasks={hackathon.tasks}
                 operatives={hackathon.operatives}
@@ -266,160 +167,138 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
                 onDeleteTask={handleDeleteTask}
               />
             </div>
-          )}
 
-          {/* TAB 3: TEAM OPERATIVES */}
-          {activeTab === 'team' && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Operatives Roster Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {hackathon.operatives.map((op) => (
-                  <div
-                    key={op.id}
-                    className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 flex items-center gap-4 shadow-brutal-sm"
-                  >
-                    <img
-                      src={op.avatar}
-                      alt={op.name}
-                      className="w-12 h-12 rounded-full border-2 border-[#1a1a1a] object-cover bg-[#ffcc00]"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-headline font-bold text-sm text-[#1a1a1a] truncate">
-                        {op.name}
-                      </h4>
-                      <p className="font-mono text-xs text-[#0055ff] font-bold truncate">
-                        {op.role}
-                      </p>
-                      <p className="font-mono text-[11px] text-[#6a6a6a] truncate">
-                        {op.email}
-                      </p>
-                    </div>
+            {/* Right Column: Overview, Team, Resources */}
+            <div className="lg:col-span-4 space-y-5">
+              {/* Overview Box */}
+              <div className="glass-card p-5 rounded-2xl">
+                <h3 className="font-bold text-sm text-slate-100 mb-4">
+                  Overview
+                </h3>
+                <dl className="space-y-3 text-xs">
+                  <div className="flex justify-between items-baseline border-b border-slate-800 pb-2">
+                    <dt className="text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                      Team
+                    </dt>
+                    <dd className="text-slate-200 font-semibold">
+                      {hackathon.teamName}
+                    </dd>
                   </div>
-                ))}
+                  <div className="flex justify-between items-baseline border-b border-slate-800 pb-2">
+                    <dt className="text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                      Track / Domain
+                    </dt>
+                    <dd className="text-slate-200 font-semibold">
+                      {hackathon.domain}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between items-baseline border-b border-slate-800 pb-2">
+                    <dt className="text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                      Format
+                    </dt>
+                    <dd className="text-slate-200 font-semibold capitalize">
+                      {hackathon.mode || 'Online'}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <dt className="text-slate-500 uppercase tracking-wider font-semibold text-[11px]">
+                      Repository
+                    </dt>
+                    <dd className="text-amber-400 font-bold flex items-center gap-1 cursor-pointer hover:underline">
+                      <span>{hackathon.websiteLink ? 'Portal Link' : 'github-repo'}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </dd>
+                  </div>
+                </dl>
               </div>
 
-              {/* Invite New Operative Form */}
-              <form
-                onSubmit={handleInviteOperative}
-                className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-5 shadow-brutal-sm space-y-3"
-              >
-                <h4 className="font-headline font-bold text-sm uppercase text-[#1a1a1a] flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#ffcc00]" />
-                  <span>DISPATCH TEAM OPERATIVE INVITATION</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-2">
-                    <input
-                      type="email"
-                      required
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      placeholder="operative.email@company.dev"
-                      className="w-full bg-[#f5f0e8] border-2 border-[#1a1a1a] px-3 py-2 font-mono text-xs text-[#1a1a1a] focus:outline-none focus:bg-[#ffffff]"
-                    />
-                  </div>
-                  <div>
-                    <select
-                      value={inviteRole}
-                      onChange={(e) => setInviteRole(e.target.value)}
-                      className="w-full bg-[#f5f0e8] border-2 border-[#1a1a1a] px-3 py-2 font-mono text-xs text-[#1a1a1a] focus:outline-none"
-                    >
-                      <option value="Frontend Lead">Frontend Lead</option>
-                      <option value="Backend Architect">Backend Architect</option>
-                      <option value="AI / ML Specialist">AI / ML Specialist</option>
-                      <option value="UI/UX Designer">UI/UX Designer</option>
-                      <option value="Pitch Lead">Pitch Lead</option>
-                    </select>
-                  </div>
+              {/* Team Box */}
+              <div className="glass-card p-5 rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-sm text-slate-100">
+                    Team Roster
+                  </h3>
+                  <button className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:bg-slate-700 transition-colors cursor-pointer">
+                    <UserPlus className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  type="submit"
-                  className="bg-[#1a1a1a] hover:bg-[#ffcc00] hover:text-[#1a1a1a] text-[#f5f0e8] border-2 border-[#1a1a1a] px-4 py-2 font-label font-bold text-xs uppercase flex items-center justify-center gap-2 transition-all shadow-brutal-sm cursor-pointer"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>SEND INVITE DISPATCH</span>
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* TAB 4: REMINDERS & EMAIL DISPATCHES */}
-          {activeTab === 'reminders' && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Trigger Email Button */}
-              <div className="bg-[#ffcc00] border-4 border-[#1a1a1a] p-5 shadow-brutal flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h4 className="font-headline font-bold text-base uppercase text-[#1a1a1a] flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-[#1a1a1a]" />
-                    <span>MANUAL EMAIL DISPATCH TRIGGER</span>
-                  </h4>
-                  <p className="font-body text-xs text-[#1a1a1a] mt-1">
-                    Send an immediate deadline warning and checklist status email to all {hackathon.operatives.length} team operatives.
-                  </p>
+                <div className="space-y-3 text-xs">
+                  {hackathon.operatives.map((op) => (
+                    <div key={op.id} className="flex items-center gap-3">
+                      <img
+                        src={op.avatar}
+                        alt={op.name}
+                        className="w-8 h-8 rounded-full border border-slate-700 object-cover bg-slate-800"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-slate-200 truncate m-0">
+                          {op.name}
+                        </p>
+                        <p className="text-[11px] text-slate-400 truncate m-0">
+                          {op.role}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <button
-                  onClick={() =>
-                    onTriggerEmailDispatch(hackathon.title, hackathon.operatives.length)
-                  }
-                  className="bg-[#1a1a1a] hover:bg-[#e63b2e] text-[#f5f0e8] border-2 border-[#1a1a1a] px-4 py-2 font-label font-bold text-xs uppercase flex items-center gap-2 transition-all shadow-brutal-sm cursor-pointer shrink-0"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>DISPATCH EMAIL NOW</span>
-                </button>
               </div>
 
-              {/* Automated Rules */}
-              <div className="space-y-3">
-                <h4 className="font-headline font-bold text-sm uppercase text-[#1a1a1a]">
-                  AUTOMATED REMINDER SCHEDULE
-                </h4>
-                {hackathon.rules.map((rule) => (
-                  <div
-                    key={rule.id}
-                    className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 flex items-center justify-between gap-3 shadow-brutal-sm"
-                  >
-                    <div>
-                      <span className="bg-[#1a1a1a] text-[#ffcc00] font-mono text-[10px] font-bold px-2 py-0.5 border border-[#1a1a1a]">
-                        {rule.timeframe}
-                      </span>
-                      <p className="font-body text-xs text-[#1a1a1a] font-medium mt-1">
-                        {rule.description}
-                      </p>
-                    </div>
-                    <span className="font-mono text-[10px] font-bold bg-[#0055ff] text-[#f5f0e8] px-2 py-0.5 border border-[#1a1a1a]">
-                      ACTIVE
-                    </span>
-                  </div>
-                ))}
+              {/* Resources Box */}
+              <div className="glass-card p-5 rounded-2xl">
+                <h3 className="font-bold text-sm text-slate-100 mb-3">
+                  Resources
+                </h3>
+                <ul className="space-y-2 text-xs">
+                  <li>
+                    <a href="#" className="text-amber-400 font-semibold hover:underline flex items-center gap-2 py-1">
+                      <FileText className="w-4 h-4 text-amber-400" />
+                      <span>Problem Specs Doc</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-amber-400 font-semibold hover:underline flex items-center gap-2 py-1">
+                      <Code className="w-4 h-4 text-amber-400" />
+                      <span>API Specification</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="text-amber-400 font-semibold hover:underline flex items-center gap-2 py-1">
+                      <Layers className="w-4 h-4 text-amber-400" />
+                      <span>Figma Designs</span>
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Modal Bottom Actions */}
-        <div className="bg-[#eee9e0] border-t-4 border-[#1a1a1a] p-4 flex items-center justify-between gap-4 shrink-0">
+        <div className="bg-slate-900/80 border-t border-slate-800 px-6 py-3 flex items-center justify-between gap-4 shrink-0">
           <button
             onClick={() => {
-              if (confirm(`Are you sure you want to delete mission: ${hackathon.title}?`)) {
+              if (confirm(`Are you sure you want to delete hackathon: ${hackathon.title}?`)) {
                 onDeleteHackathon(hackathon.id);
                 onClose();
               }
             }}
-            className="bg-[#eee9e0] hover:bg-[#e63b2e] hover:text-[#f5f0e8] text-[#e63b2e] border-2 border-[#1a1a1a] px-3 py-2 font-label font-bold text-xs uppercase flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-red-400 hover:bg-red-500/10 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">ABORT MISSION</span>
+            <span>Delete Hackathon</span>
           </button>
 
           <button
             onClick={onClose}
-            className="bg-[#1a1a1a] hover:bg-[#ffcc00] hover:text-[#1a1a1a] text-[#f5f0e8] border-2 border-[#1a1a1a] px-6 py-2 font-label font-bold text-xs uppercase tracking-wider shadow-brutal-sm transition-all cursor-pointer"
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
           >
-            CLOSE CONTROL
+            Close
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+
+

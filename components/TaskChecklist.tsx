@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TaskView, OperativeView } from '@/lib/types';
-import { CheckSquare, Square, Plus, Award, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface TaskChecklistProps {
   tasks: TaskView[];
@@ -24,12 +24,14 @@ export const TaskChecklist: React.FC<TaskChecklistProps> = ({
   const [selectedOperativeId, setSelectedOperativeId] = useState(operatives[0]?.id || '');
   const [isAdding, setIsAdding] = useState(false);
 
-  // Calculate weighted stats
-  const totalWeight = tasks.reduce((sum, t) => sum + t.weight, 0);
-  const completedWeight = tasks
-    .filter((t) => t.completed)
-    .reduce((sum, t) => sum + t.weight, 0);
-  const weightedProgress = totalWeight ? Math.round((completedWeight / totalWeight) * 100) : 0;
+  // Helper for initials
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,102 +49,63 @@ export const TaskChecklist: React.FC<TaskChecklistProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Weighted Progress Header */}
-      <div className="bg-[#f5f0e8] border-2 border-[#1a1a1a] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-brutal-sm">
-        <div>
-          <span className="font-label font-bold text-xs uppercase tracking-wider text-[#4a4a4a]">
-            WEIGHTED CHECKLIST COMPLETION
-          </span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="font-headline font-black text-2xl text-[#1a1a1a]">
-              {weightedProgress}%
-            </span>
-            <span className="font-mono text-xs text-[#4a4a4a]">
-              ({completedWeight} of {totalWeight} Total Weight Points)
-            </span>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          className="bg-[#ffcc00] hover:bg-[#1a1a1a] hover:text-[#f5f0e8] text-[#1a1a1a] border-2 border-[#1a1a1a] px-3 py-1.5 font-label font-bold text-xs uppercase flex items-center gap-1.5 transition-all shadow-brutal-sm cursor-pointer"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span>{isAdding ? 'CANCEL' : 'ADD DIRECTIVE'}</span>
-        </button>
-      </div>
-
-      {/* Inline Add Task Form */}
+    <div className="space-y-3">
+      {/* Inline Form if adding */}
       {isAdding && (
         <form
           onSubmit={handleCreate}
-          className="bg-[#eee9e0] border-2 border-[#1a1a1a] p-4 shadow-brutal-sm space-y-3 animate-fade-in"
+          className="glass-card p-4 rounded-2xl space-y-3 shadow-xl animate-fade-in border border-amber-500/40"
         >
-          <h4 className="font-headline font-bold text-sm uppercase text-[#1a1a1a]">
-            NEW MISSION TASK DIRECTIVE
-          </h4>
-          <div>
-            <label className="block font-mono text-xs font-bold text-[#4a4a4a] mb-1">
-              Task Title / Description
-            </label>
-            <input
-              type="text"
-              required
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="e.g. Integrate Resend Email API for Reminders"
-              className="w-full bg-[#f5f0e8] border-2 border-[#1a1a1a] px-3 py-2 font-body text-sm text-[#1a1a1a] focus:outline-none focus:bg-[#ffffff]"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <h4 className="font-semibold text-sm text-slate-100">Add New Task</h4>
+          <input
+            type="text"
+            required
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="e.g. Implement rate limiting middleware"
+            className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+          />
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-mono text-xs font-bold text-[#4a4a4a] mb-1">
-                Task Weight Impact (1 = Minor, 3 = Critical)
-              </label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Impact Weight</label>
               <select
                 value={newWeight}
                 onChange={(e) => setNewWeight(Number(e.target.value))}
-                className="w-full bg-[#f5f0e8] border-2 border-[#1a1a1a] px-3 py-2 font-mono text-sm text-[#1a1a1a] focus:outline-none"
+                className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 focus:outline-none"
               >
-                <option value={1}>1x Weight (Minor / Quick Task)</option>
-                <option value={2}>2x Weight (Standard Feature)</option>
-                <option value={3}>3x Weight (Critical / Demo / Pitch)</option>
+                <option value={1}>1x Minor</option>
+                <option value={2}>2x Standard</option>
+                <option value={3}>3x Critical</option>
               </select>
             </div>
-
             <div>
-              <label className="block font-mono text-xs font-bold text-[#4a4a4a] mb-1">
-                Assign Operative
-              </label>
+              <label className="block text-xs font-medium text-slate-400 mb-1">Assignee</label>
               <select
                 value={selectedOperativeId}
                 onChange={(e) => setSelectedOperativeId(e.target.value)}
-                className="w-full bg-[#f5f0e8] border-2 border-[#1a1a1a] px-3 py-2 font-mono text-sm text-[#1a1a1a] focus:outline-none"
+                className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 focus:outline-none"
               >
                 {operatives.map((op) => (
                   <option key={op.id} value={op.id}>
-                    {op.name} ({op.role})
+                    {op.name}
                   </option>
                 ))}
               </select>
             </div>
           </div>
-
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
               onClick={() => setIsAdding(false)}
-              className="bg-[#eee9e0] hover:bg-[#e8e3da] text-[#1a1a1a] border-2 border-[#1a1a1a] px-3 py-1 font-label font-bold text-xs uppercase cursor-pointer"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-medium cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-[#1a1a1a] hover:bg-[#ffcc00] hover:text-[#1a1a1a] text-[#f5f0e8] border-2 border-[#1a1a1a] px-4 py-1 font-label font-bold text-xs uppercase cursor-pointer transition-all"
+              className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 cursor-pointer"
             >
-              CREATE TASK
+              Save Task
             </button>
           </div>
         </form>
@@ -153,70 +116,58 @@ export const TaskChecklist: React.FC<TaskChecklistProps> = ({
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`border-2 border-[#1a1a1a] p-3 flex items-center justify-between gap-3 transition-all ${
-              task.completed ? 'bg-[#e8e3da] opacity-75' : 'bg-[#f5f0e8] hover:bg-[#eee9e0]'
-            }`}
+            className="flex items-center justify-between p-3.5 glass-card glass-card-hover rounded-2xl group"
           >
-            {/* Checkbox & Title */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <button
-                onClick={() => onToggleTask(task.id)}
-                className="text-[#1a1a1a] hover:text-[#0055ff] transition-colors cursor-pointer shrink-0"
-              >
-                {task.completed ? (
-                  <CheckSquare className="w-5 h-5 fill-[#ffcc00] text-[#1a1a1a]" />
-                ) : (
-                  <Square className="w-5 h-5 text-[#1a1a1a]" />
-                )}
-              </button>
-
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => onToggleTask(task.id)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-2 focus:ring-amber-500 border-slate-700 bg-slate-900 cursor-pointer accent-amber-500"
+              />
               <span
-                className={`font-body text-sm font-medium text-[#1a1a1a] truncate ${
-                  task.completed ? 'line-through text-[#6a6a6a]' : ''
+                className={`text-sm text-slate-100 truncate font-medium ${
+                  task.completed ? 'line-through opacity-50 text-slate-400' : ''
                 }`}
               >
                 {task.title}
               </span>
             </div>
 
-            {/* Weight & Assignee Pill */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="bg-[#1a1a1a] text-[#ffcc00] border border-[#1a1a1a] px-2 py-0.5 font-mono text-[10px] font-bold">
-                {task.weight}x WEIGHT
-              </span>
-
+              {/* Member Initials Avatar */}
               <div
-                className="flex items-center gap-1.5 bg-[#eee9e0] border border-[#1a1a1a] px-2 py-0.5 font-mono text-[11px] text-[#1a1a1a] hidden sm:flex"
+                className="w-7 h-7 rounded-full bg-slate-800 text-amber-400 border border-slate-700 flex items-center justify-center text-xs font-bold shadow-xs"
                 title={`Assigned to ${task.assigneeName}`}
               >
-                <img
-                  src={task.assigneeAvatar}
-                  alt={task.assigneeName}
-                  className="w-4 h-4 rounded-full border border-[#1a1a1a] object-cover"
-                />
-                <span className="truncate max-w-[90px]">{task.assigneeName}</span>
+                {getInitials(task.assigneeName)}
               </div>
 
               <button
                 onClick={() => onDeleteTask(task.id)}
-                className="p-1 text-[#6a6a6a] hover:text-[#e63b2e] transition-colors cursor-pointer"
+                className="p-1 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                 title="Delete Task"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         ))}
-
-        {tasks.length === 0 && (
-          <div className="text-center p-6 border-2 border-dashed border-[#1a1a1a] bg-[#eee9e0]">
-            <Award className="w-8 h-8 text-[#6a6a6a] mx-auto mb-2" />
-            <p className="font-mono text-xs text-[#6a6a6a]">
-              No tasks defined for this mission yet. Click "ADD DIRECTIVE" to create one.
-            </p>
-          </div>
-        )}
       </div>
+
+      {/* Add Task Button */}
+      {!isAdding && (
+        <button
+          onClick={() => setIsAdding(true)}
+          className="w-full flex items-center justify-center gap-2 p-3 bg-slate-900/40 backdrop-blur-md border border-dashed border-slate-700 rounded-2xl text-slate-400 hover:bg-slate-800/60 hover:text-amber-400 transition-colors text-xs font-semibold cursor-pointer shadow-xs"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Task</span>
+        </button>
+      )}
     </div>
   );
 };
+
+
+

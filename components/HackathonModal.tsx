@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { HackathonView } from '@/lib/types';
 import { TaskChecklist } from './TaskChecklist';
 import {

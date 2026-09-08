@@ -30,11 +30,11 @@ export const HackathonModal: React.FC<HackathonModalProps> = ({
   onDeleteHackathon,
   onTriggerEmailDispatch,
 }) => {
-  if (!hackathon) return null;
-
   const [activeTab, setActiveTab] = useState<'specs' | 'tasks' | 'team' | 'reminders'>('specs');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Developer');
+
+  if (!hackathon) return null;
 
   // Handle task toggling
   const handleToggleTask = (taskId: string) => {

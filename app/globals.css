@@ -30,7 +30,34 @@
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+    scrollbar-color: #ffcc00 #eee9e0;
   }
+}
+
+/* Custom Neo-Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eee9e0;
+  border-left: 2px solid #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffcc00;
+  border: 2px solid #1a1a1a;
+  border-radius: 0px;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-corner {
+  background: #1a1a1a;
 }
 
 /* Typography Classes */

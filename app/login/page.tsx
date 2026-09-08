@@ -1,9 +1,12 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { Rocket } from 'lucide-react';
+import { Rocket, Play, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
@@ -12,6 +15,10 @@ export default function LoginPage() {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+  };
+
+  const handleDemoLogin = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -33,7 +40,7 @@ export default function LoginPage() {
             Access Terminal
           </h1>
           <p className="font-body text-[#4a4a4a] mb-8">
-            Authenticate with your Google account to access the hackathon command center.
+            Authenticate with your Google account or explore in live demo mode.
           </p>
 
           {/* Decorative Line */}
@@ -52,6 +59,24 @@ export default function LoginPage() {
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
             <span>Sign in with Google</span>
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center my-6 gap-3">
+            <div className="h-[2px] bg-[#1a1a1a] flex-1" />
+            <span className="font-mono text-xs font-bold text-[#6a6a6a] uppercase">OR</span>
+            <div className="h-[2px] bg-[#1a1a1a] flex-1" />
+          </div>
+
+          {/* Demo Login Button */}
+          <button
+            id="btn-demo-login"
+            onClick={handleDemoLogin}
+            className="w-full bg-[#1a1a1a] text-[#f5f0e8] border-4 border-[#1a1a1a] py-3.5 px-6 font-label font-bold uppercase tracking-wider text-base flex items-center justify-center gap-3 hover:bg-[#ffcc00] hover:text-[#1a1a1a] transition-all shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer group"
+          >
+            <Play className="w-5 h-5 text-[#ffcc00] group-hover:text-[#1a1a1a] fill-current" />
+            <span>Continue in Demo Mode</span>
+            <ArrowRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
           </button>
 
           {/* Footer */}

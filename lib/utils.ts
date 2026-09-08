@@ -47,6 +47,7 @@ export function formatDate(dateStr: string | null): string {
   if (!dateStr) return 'TBD';
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
+    year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

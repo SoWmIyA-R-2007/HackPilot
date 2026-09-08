@@ -21,40 +21,40 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ hackathons }) => {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {/* Stat 1: Total Hackathons */}
       <div className="glass-card glass-card-hover p-4 rounded-2xl">
-        <div className="text-slate-400 font-label-md text-xs uppercase tracking-wider mb-2 font-semibold">
+        <div className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-bold">
           Total Hackathons
         </div>
-        <div className="text-slate-100 font-display-lg text-3xl font-bold">
+        <div className="text-slate-100 text-3xl font-extrabold">
           {totalMissions}
         </div>
       </div>
 
       {/* Stat 2: In Progress */}
       <div className="glass-card glass-card-hover p-4 rounded-2xl">
-        <div className="text-amber-400/80 font-label-md text-xs uppercase tracking-wider mb-2 font-semibold">
+        <div className="text-amber-400/90 text-xs uppercase tracking-wider mb-2 font-bold">
           In Progress
         </div>
-        <div className="text-amber-400 font-display-lg text-3xl font-bold">
+        <div className="text-amber-400 text-3xl font-extrabold">
           {activeMissions}
         </div>
       </div>
 
       {/* Stat 3: Overdue */}
       <div className="glass-card glass-card-hover p-4 rounded-2xl">
-        <div className="text-red-400/80 font-label-md text-xs uppercase tracking-wider mb-2 font-semibold">
+        <div className="text-red-400/90 text-xs uppercase tracking-wider mb-2 font-bold">
           Overdue / Urgent
         </div>
-        <div className="text-red-400 font-display-lg text-3xl font-bold">
+        <div className="text-red-400 text-3xl font-extrabold">
           {overdueCount}
         </div>
       </div>
 
       {/* Stat 4: Completed */}
       <div className="glass-card glass-card-hover p-4 rounded-2xl">
-        <div className="text-emerald-400/80 font-label-md text-xs uppercase tracking-wider mb-2 font-semibold">
+        <div className="text-emerald-400/90 text-xs uppercase tracking-wider mb-2 font-bold">
           Completed
         </div>
-        <div className="text-emerald-400 font-display-lg text-3xl font-bold">
+        <div className="text-emerald-400 text-3xl font-extrabold">
           {completedMissions}
         </div>
       </div>

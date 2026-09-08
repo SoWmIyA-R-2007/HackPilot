@@ -1,31 +1,41 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import { StatsOverview } from '@/components/StatsOverview';
 import { HackathonCard } from '@/components/HackathonCard';
-import { HackathonModal } from '@/components/HackathonModal';
 import { NewHackathonModal } from '@/components/NewHackathonModal';
 import { NotificationDrawer } from '@/components/NotificationDrawer';
 import { ToastContainer } from '@/components/ToastContainer';
 import { HackathonView, MissionAlert, ToastMessage } from '@/lib/types';
-import { INITIAL_MOCK_HACKATHONS, INITIAL_MISSION_ALERTS } from '@/lib/mock-data';
+import {
+  INITIAL_MISSION_ALERTS,
+  getStoredHackathons,
+  saveStoredHackathons,
+} from '@/lib/mock-data';
 import { LayoutGrid, ListFilter, Plus, Search } from 'lucide-react';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'hackathons' | 'notifications' | 'settings'>('dashboard');
-  const [hackathons, setHackathons] = useState<HackathonView[]>(INITIAL_MOCK_HACKATHONS);
+  const [hackathons, setHackathons] = useState<HackathonView[]>([]);
   const [alerts, setAlerts] = useState<MissionAlert[]>(INITIAL_MISSION_ALERTS);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  
+
   // Controls
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'in_progress' | 'completed' | 'high_priority'>('all');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [selectedHackathon, setSelectedHackathon] = useState<HackathonView | null>(null);
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  // Initialize stored hackathons on mount
+  useEffect(() => {
+    const list = getStoredHackathons();
+    setHackathons(list);
+  }, []);
 
   // Sync activeTab with notifications
   useEffect(() => {
@@ -34,14 +44,18 @@ export default function DashboardPage() {
     }
   }, [activeTab]);
 
-  const addToast = (title: string, message: string, type: 'success' | 'warning' | 'info' = 'info') => {
+  const addToast = (title: string, message: string, type: 'success' | 'alert' | 'info' = 'info') => {
+    const id = `toast-${Date.now()}`;
     const newToast: ToastMessage = {
-      id: `toast-${Date.now()}`,
+      id,
       title,
       message,
       type,
     };
     setToasts((prev) => [...prev, newToast]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
   };
 
   const removeToast = (id: string) => {
@@ -50,34 +64,16 @@ export default function DashboardPage() {
 
   // Handlers
   const handleCreateHackathon = (newHackathon: HackathonView) => {
-    setHackathons((prev) => [newHackathon, ...prev]);
-    addToast('Hackathon Created', `${newHackathon.title} successfully added.`, 'success');
-  };
-
-  const handleUpdateHackathon = (updated: HackathonView) => {
-    setHackathons((prev) =>
-      prev.map((h) => (h.id === updated.id ? updated : h))
-    );
-    if (selectedHackathon?.id === updated.id) {
-      setSelectedHackathon(updated);
-    }
-  };
-
-  const handleDeleteHackathon = (id: string) => {
-    const target = hackathons.find((h) => h.id === id);
-    setHackathons((prev) => prev.filter((h) => h.id !== id));
-    if (selectedHackathon?.id === id) {
-      setSelectedHackathon(null);
-    }
-    if (target) {
-      addToast('Hackathon Removed', `${target.title} deleted.`, 'warning');
-    }
+    const nextList = [newHackathon, ...hackathons];
+    setHackathons(nextList);
+    saveStoredHackathons(nextList);
+    addToast('Hackathon Initialized', `${newHackathon.title} successfully launched.`, 'success');
   };
 
   const handleTriggerEmailDispatch = (title: string, count: number) => {
     addToast(
-      'Email Dispatch Broadcasted',
-      `Sent deadline & status update email to ${count} team members for ${title}.`,
+      'Email Broadcast Sent',
+      `Dispatched warning email to ${count} operatives for "${title}".`,
       'success'
     );
   };
@@ -101,103 +97,95 @@ export default function DashboardPage() {
   const unreadAlertsCount = alerts.filter((a) => a.unread).length;
 
   return (
-    <div className="bg-[#090d16] min-h-screen text-slate-100 font-sans">
-      {/* Persistent Left Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        onSelectTab={(tab) => {
-          setActiveTab(tab);
-          if (tab === 'notifications') setIsNotificationOpen(true);
-        }}
-        unreadCount={unreadAlertsCount}
-      />
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex font-body selection:bg-amber-500 selection:text-slate-950 relative overflow-x-hidden">
+      {/* Background Ambient Glow */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-amber-500/5 blur-[140px] rounded-full pointer-events-none" />
 
-      {/* Top Header Navbar */}
-      <Navbar
-        onOpenNewMission={() => setIsNewModalOpen(true)}
-        onOpenNotifications={() => setIsNotificationOpen(true)}
-        unreadCount={unreadAlertsCount}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+      {/* Sidebar */}
+      <Sidebar activeTab={activeTab} onSelectTab={(tab) => setActiveTab(tab)} />
 
-      {/* Main Content Area */}
-      <div className="pl-64 pt-16 min-h-screen">
-        <main className="p-6 max-w-7xl mx-auto space-y-6">
-          {/* Top Page Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="font-display-lg text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
-                Mission Control
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-400 mt-0.5 font-medium">
-                Overview of active hackathons, team tasks, and sprint progress
-              </p>
-            </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 pl-16 md:pl-64">
+        {/* Top Navbar */}
+        <Navbar
+          onOpenNewMission={() => setIsNewModalOpen(true)}
+          onOpenNotifications={() => setIsNotificationOpen(true)}
+          unreadCount={unreadAlertsCount}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
-            <button
-              onClick={() => setIsNewModalOpen(true)}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/20 cursor-pointer active:scale-95 border border-amber-400"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>New Hackathon</span>
-            </button>
-          </div>
-
-          {/* 4 Metric Stat Cards */}
+        {/* Content Body */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* Stats Overview Panel */}
           <StatsOverview hackathons={hackathons} />
 
-          {/* Active Hackathons Section */}
+          {/* Mission Control Registry & Filter Controls */}
           <div className="space-y-4">
-            {/* Toolbar: Filter Pills & View Switcher */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 glass-panel p-4 rounded-2xl">
-              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-                <span className="text-xs font-extrabold text-slate-200 mr-1">Active Hackathons</span>
-                {[
-                  { id: 'all', label: 'All' },
-                  { id: 'in_progress', label: 'In Progress' },
-                  { id: 'completed', label: 'Completed' },
-                  { id: 'high_priority', label: 'High Priority' },
-                ].map((filter) => (
-                  <button
-                    key={filter.id}
-                    onClick={() => setActiveFilter(filter.id as any)}
-                    className={`px-3.5 py-1 text-xs font-bold rounded-full transition-all cursor-pointer whitespace-nowrap ${
-                      activeFilter === filter.id
-                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 border border-amber-400'
-                        : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 hover:text-slate-100 border border-slate-800'
-                    }`}
-                  >
-                    {filter.label}
-                  </button>
-                ))}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-4 rounded-2xl border border-slate-800">
+              <div className="flex items-center gap-2">
+                <LayoutGrid className="w-5 h-5 text-amber-400" />
+                <h2 className="font-extrabold text-base uppercase tracking-tight text-slate-100">
+                  Mission Control Registry
+                </h2>
+                <span className="bg-slate-800 text-amber-400 text-xs font-mono font-bold px-2 py-0.5 rounded-full border border-slate-700">
+                  {filteredHackathons.length}
+                </span>
               </div>
 
-              {/* View Mode Switcher */}
-              <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shrink-0">
+              {/* Action & Filter Toolbar */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Filter Chips */}
+                <div className="flex bg-slate-950/80 p-1 rounded-xl border border-slate-800 font-mono text-xs">
+                  {[
+                    { id: 'all', label: 'ALL' },
+                    { id: 'in_progress', label: 'ACTIVE' },
+                    { id: 'completed', label: 'DONE' },
+                    { id: 'high_priority', label: 'HIGH' },
+                  ].map((chip) => (
+                    <button
+                      key={chip.id}
+                      onClick={() => setActiveFilter(chip.id as any)}
+                      className={`px-3 py-1 rounded-lg font-bold uppercase transition-all cursor-pointer ${
+                        activeFilter === chip.id
+                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* View Mode Toggle */}
+                <div className="flex bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      viewMode === 'list' ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="List View"
+                  >
+                    <ListFilter className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                      viewMode === 'grid' ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="Grid View"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* New Mission Button */}
                 <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded-lg text-xs font-extrabold transition-colors flex items-center gap-1 cursor-pointer ${
-                    viewMode === 'list'
-                      ? 'bg-amber-500/20 text-amber-400 shadow-xs border border-amber-500/40'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Compact List View"
+                  onClick={() => setIsNewModalOpen(true)}
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-md shadow-amber-500/20 flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
-                  <ListFilter className="w-4 h-4" />
-                  <span className="hidden sm:inline">List View</span>
-                </button>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded-lg text-xs font-extrabold transition-colors flex items-center gap-1 cursor-pointer ${
-                    viewMode === 'grid'
-                      ? 'bg-amber-500/20 text-amber-400 shadow-xs border border-amber-500/40'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Grid View"
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Grid View</span>
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>New Mission</span>
                 </button>
               </div>
             </div>
@@ -206,11 +194,7 @@ export default function DashboardPage() {
             {filteredHackathons.length > 0 ? (
               <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3.5' : 'space-y-2.5'}>
                 {filteredHackathons.map((h) => (
-                  <HackathonCard
-                    key={h.id}
-                    hackathon={h}
-                    onSelect={(selected) => setSelectedHackathon(selected)}
-                  />
+                  <HackathonCard key={h.id} hackathon={h} />
                 ))}
               </div>
             ) : (
@@ -225,14 +209,6 @@ export default function DashboardPage() {
       </div>
 
       {/* Modal Dialogs */}
-      <HackathonModal
-        hackathon={selectedHackathon}
-        onClose={() => setSelectedHackathon(null)}
-        onUpdateHackathon={handleUpdateHackathon}
-        onDeleteHackathon={handleDeleteHackathon}
-        onTriggerEmailDispatch={handleTriggerEmailDispatch}
-      />
-
       <NewHackathonModal
         isOpen={isNewModalOpen}
         onClose={() => setIsNewModalOpen(false)}

@@ -309,3 +309,36 @@ export const INITIAL_MISSION_ALERTS: MissionAlert[] = [
     unread: false,
   },
 ];
+
+const STORAGE_KEY = 'hacktrack_hackathons_v1';
+
+export function getStoredHackathons(): HackathonView[] {
+  if (typeof window === 'undefined') return INITIAL_MOCK_HACKATHONS;
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Ignore storage read errors
+  }
+  return INITIAL_MOCK_HACKATHONS;
+}
+
+export function saveStoredHackathons(hackathons: HackathonView[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(hackathons));
+  } catch {
+    // Ignore storage write errors
+  }
+}
+
+export function getHackathonById(id: string): HackathonView | undefined {
+  const list = getStoredHackathons();
+  return list.find((h) => h.id === id);
+}
+

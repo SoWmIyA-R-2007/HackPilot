@@ -1,18 +1,25 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { HackathonView } from '@/lib/types';
 import { Eye, Edit3 } from 'lucide-react';
 
 interface HackathonCardProps {
   hackathon: HackathonView;
-  onSelect: (hackathon: HackathonView) => void;
+  onSelect?: (hackathon: HackathonView) => void;
 }
 
 export const HackathonCard: React.FC<HackathonCardProps> = ({
   hackathon,
   onSelect,
 }) => {
+  const router = useRouter();
+
+  const handleNavigate = () => {
+    if (onSelect) onSelect(hackathon);
+    router.push(`/dashboard/hackathons/${hackathon.id}`);
+  };
   const getStatusDotColor = () => {
     if (hackathon.status === 'completed' || hackathon.status === 'submitted') return 'bg-emerald-600';
     if (hackathon.priority === 'high') return 'bg-red-600';
@@ -21,7 +28,7 @@ export const HackathonCard: React.FC<HackathonCardProps> = ({
 
   return (
     <div
-      onClick={() => onSelect(hackathon)}
+      onClick={handleNavigate}
       className="group glass-card glass-card-hover p-4 rounded-2xl flex items-center justify-between transition-all relative overflow-hidden cursor-pointer"
     >
       <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-4">
@@ -56,7 +63,7 @@ export const HackathonCard: React.FC<HackathonCardProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onSelect(hackathon);
+            handleNavigate();
           }}
           className="text-slate-400 hover:text-amber-400 transition-colors p-1.5 rounded-full hover:bg-slate-800 cursor-pointer"
           title="View Details"
@@ -66,7 +73,7 @@ export const HackathonCard: React.FC<HackathonCardProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onSelect(hackathon);
+            handleNavigate();
           }}
           className="text-slate-400 hover:text-amber-400 transition-colors p-1.5 rounded-full hover:bg-slate-800 cursor-pointer"
           title="Edit Hackathon"

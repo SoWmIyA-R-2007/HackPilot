@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="fixed top-0 left-64 right-0 h-16 bg-slate-950/80 backdrop-blur-2xl border-b border-slate-800/80 z-40 px-6 flex items-center justify-between shadow-lg">
+    <header className="sticky top-0 h-16 bg-slate-950/90 backdrop-blur-2xl border-b border-slate-800/80 z-40 px-6 flex items-center justify-between shadow-lg w-full">
       {/* Search Input Bar Pill */}
       <div className="flex items-center bg-slate-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-800 w-96 shadow-inner focus-within:border-amber-500 focus-within:bg-slate-900 transition-all">
         <Search className="w-4 h-4 text-slate-400 shrink-0 font-bold" />
